@@ -1,0 +1,218 @@
+\NeedsTeXFormat{LaTeX2e}[1994/06/01]
+\ProvidesPackage{autominutes}[2014/05/23 USCKI autominutes package]
+
+\usepackage[usenames,dvipsnames,table]{xcolor}
+\usepackage{etoolbox}
+\usepackage{listing}
+\usepackage{xstring}
+\usepackage{anysize}
+\marginsize{1cm}{1cm}{1cm}{3cm}
+
+\newcounter{todosCnt}
+\newcounter{colors}
+\newcounter{aanwezig}
+\newcounter{afwezig}
+\newcounter{foreach}
+
+
+%create colors
+\csdef{color1}{Apricot}
+\csdef{color2}{Rhodamine}
+\csdef{color3}{Blue}
+\csdef{color4}{ForestGreen}
+\csdef{color5}{SpringGreen}
+\csdef{color6}{OliveGreen}
+\csdef{color7}{YellowOrange}
+\csdef{color8}{Cyan}
+\csdef{color9}{DarkOrchid}
+\csdef{color10}{BlueViolet}
+\csdef{color11}{Green}
+\csdef{color12}{Melon}
+\csdef{color13}{Mahogany}
+\csdef{color14}{LimeGreen}
+\csdef{color15}{Mulberry}
+\csdef{color16}{CadetBlue}
+\csdef{color17}{OrangeRed}
+\csdef{color18}{Peach}
+\csdef{color19}{PineGreen}
+\csdef{color20}{ProcessBlue}
+\csdef{color21}{RawSienna}
+\csdef{color22}{RedOrange}
+\csdef{color23}{Bittersweet}
+\csdef{color24}{RoyalPurple}
+\csdef{color25}{Salmon}
+\csdef{color26}{Brown}
+\csdef{color27}{TealBlue}
+\csdef{color28}{Turquoise}
+\csdef{color29}{VioletRed}
+\csdef{color30}{WildStrawberry}
+\csdef{color31}{YellowGreen}
+\csdef{color32}{Aquamarine}
+\csdef{color33}{Black}
+\csdef{color34}{BlueGreen}
+\csdef{color35}{BrickRed}
+\csdef{color36}{BurntOrange}
+\csdef{color37}{CarnationPink}
+\csdef{color38}{CornflowerBlue}
+\csdef{color39}{Dandelion}
+\csdef{color40}{Emerald}
+\csdef{color41}{Gray}
+\csdef{color42}{GreenYellow}
+\csdef{color43}{Lavender}
+\csdef{color44}{Magenta}
+\csdef{color45}{Maroon}
+\csdef{color46}{NavyBlue}
+\csdef{color47}{Orange}
+\csdef{color48}{Orchid}
+\csdef{color49}{Periwinkle}
+\csdef{color50}{Plum}
+\csdef{color51}{Purple}
+\csdef{color52}{RedViolet}
+\csdef{color53}{RoyalBlue}
+\csdef{color54}{RubineRed}
+\csdef{color55}{SeaGreen}
+\csdef{color56}{SkyBlue}
+\csdef{color57}{Tan}
+\csdef{color58}{Thistle}
+\csdef{color59}{Violet}
+\csdef{color60}{White}
+\csdef{color61}{Yellow}
+
+
+\def\@bestuursnamen{ %
+	\csxdef{NAAMTim}{MidnightBlue}
+	\csxdef{NAAMTariq}{JungleGreen}
+	\csxdef{NAAMNiels}{Goldenrod} 
+	\csxdef{NAAMSimone}{Fuchsia}
+	\csxdef{NAAMNina}{Red}
+	\csxdef{NAAMJop}{Sepia}
+	
+	\csxdef{NAAMTim van Vliet}{MidnightBlue}
+	\csxdef{NAAMTariq Mouhtadi}{JungleGreen}
+	\csxdef{NAAMNiels van Houten}{Goldenrod} 
+	\csxdef{NAAMSimone van Bruggen}{Fuchsia}
+	\csxdef{NAAMNina Krijger}{Red}
+	\csxdef{NAAMJop Brandenburg}{Sepia}
+}  
+
+% Command for adding a TODO.
+% Automatically displays TODO in-text and adds it to the array
+\newcommand\todo[3]{ %
+	\stepcounter{todosCnt}	
+	{\color{\csuse{NAAM#1}}\textbf{@#1}: #2}
+	\global\csdef{todo\thetodosCnt}{\textbf{\color{\csuse{NAAM#1}}#1} & #2 & #3}
+}
+
+\newcommand\todoName[3]{ %
+	\newName{#1}
+	\todo{#1}{#2}{#3}
+}
+
+\newcommand\newName[1]{ %
+	\stepcounter{colors}
+	\csxdef{NAAM#1}{\csuse{color\thecolors}}
+}
+
+
+% Make the table with the todo's. 
+% Argument is the todo-counter
+\newcommand\todos{ %
+	\setcounter{foreach}{0}
+	\definecolor{lightgray}{gray}{0.9}
+	\rowcolors{1}{}{lightgray}
+	\section{TODO's}
+	\begin{tabular}{lp{8cm}p{4cm}}
+	\textbf{Slachtoffer} & \textbf{TODO} & \textbf{Einddatum}  
+	\whileboolexpr
+		{ test {\ifnumcomp{\value{foreach}}{<}{\thetodosCnt}} }
+		{\stepcounter{foreach}\\ \csuse{todo\theforeach}}
+	\end{tabular}
+}
+
+%DebugMode
+\newcommand\printColors{
+	\newcounter{temp}
+	\setcounter{temp}{0}
+	\begin{itemize}
+		\whileboolexpr
+				{ test {\ifnumcomp{\value{temp}}{<}{62}}}
+				{\stepcounter{temp} \item {\color{\csuse{color\thetemp}}\csuse{color\thetemp}} }
+	\end{itemize}
+}
+
+% % % % % % % % % % % %
+% % AANWEZIGHEID  % % %
+% % % % % % % % % % % %
+\newcommand\aanwezigheid[2]{ %
+	\begin{center}
+	\@aanwezig{#1}
+	\@afwezig{#2}
+	\setcounter{foreach}{0}
+	\textbf{Aanwezig:}
+	\whileboolexpr
+		{test {\ifnumcomp{\value{foreach}}{<}{\theaanwezig - 1}} }
+		{\stepcounter{foreach}\csuse{AANWEZIG\theforeach},}
+	\stepcounter{foreach}
+	\csuse{AANWEZIG\theforeach}\\
+	\setcounter{foreach}{0}
+	\textbf{Afwezig:}
+	\whileboolexpr
+		{test {\ifnumcomp{\value{foreach}}{<}{\theafwezig-1}} }
+		{\stepcounter{foreach}\csuse{AFWEZIG\theforeach},}
+	\stepcounter{foreach}
+	\csuse{AFWEZIG\theforeach}\\
+	\end{center}
+	\@bestuursnamen
+}
+
+\def\@aanwezig#1{ %
+	\StrCount{#1}{;}[\@tempNofItems]
+	\ifnum\@tempNofItems=0
+		% Nog maar 1 naam resterend
+		\@mkAanwezig{#1}
+	\else
+		% Nog lijst van namen resterend
+		\StrBefore{#1}{;}[\@tempname] % Head 
+		\StrBehind{#1}{;}[\@templist] % Tail
+		\@aanwezig{\@tempname}
+		\@aanwezig{\@templist}
+	\fi
+}
+
+\def\@mkAanwezig#1{ %
+	\IfBeginWith{#1}{\space}{\StrBehind{#1}{\space}[\@stripped]}{\def\@stripped{#1}}
+	\StrBefore{\@stripped}{\space}[\@firstname]
+	\stepcounter{aanwezig}
+	\csxdef{AANWEZIG\theaanwezig}{#1}
+	%aanwezig\theaanwezig = #1 \\
+	\stepcounter{colors}
+	\csxdef{NAAM\@firstname}{\csuse{color\thecolors}}
+	\csxdef{NAAM\@stripped}{\csuse{color\thecolors}}
+}
+
+\def\@afwezig#1{ %
+	\StrCount{#1}{;}[\@tempNofItems]
+	\ifnum\@tempNofItems=0
+		% Nog maar 1 naam resterend
+		\@mkAfwezig{#1}
+	\else
+		% Nog lijst van namen resterend
+		\StrBefore{#1}{;}[\@tempname] % Head 
+		\StrBehind{#1}{;}[\@templist] % Tail
+		\@afwezig{\@tempname}
+		\@afwezig{\@templist}
+	\fi
+}
+
+\def\@mkAfwezig#1{ %
+	\IfBeginWith{#1}{\space}{\StrBehind{#1}{\space}[\@stripped]}{\def\@stripped{#1}}
+	\StrBefore{\@stripped}{\space}[\@firstname]
+	\stepcounter{afwezig}
+	\csxdef{AFWEZIG\theafwezig}{#1}
+	%afwezig\theafwezig = #1 \\
+	\stepcounter{colors}
+	\csxdef{NAAM\@firstname}{\csuse{color\thecolors}}
+	\csxdef{NAAM\@stripped}{\csuse{color\thecolors}}
+}
+
+
